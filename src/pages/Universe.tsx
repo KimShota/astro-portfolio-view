@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -6,7 +6,6 @@ import StarField from '@/components/StarField';
 import Constellation from '@/components/Constellation';
 import ConstellationModal from '@/components/ConstellationModal';
 import MenuOverlay from '@/components/MenuOverlay';
-import { Button } from '@/components/ui/button';
 
 // Import constellation images
 import phoenixImg from '@/assets/constellation-phoenix.png';
@@ -30,7 +29,7 @@ interface Project {
   position: { x: number; y: number };
 }
 
-const projects: Project[] = [
+const baseProjects: Project[] = [
   {
     id: 'phoenix',
     name: 'Phoenix',
@@ -121,6 +120,9 @@ const projects: Project[] = [
   },
 ];
 
+// Single section width (one complete set of constellations)
+const SECTION_WIDTH = 4200;
+
 const Universe = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -132,11 +134,69 @@ const Universe = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
 
-  const universeWidth = 4200;
+  // Total width is 3x section width (clone before + original + clone after)
+  const totalWidth = SECTION_WIDTH * 3;
+
+  // Create 3 copies of projects for infinite scroll
+  const allProjects = [
+    // Clone before (section 0)
+    ...baseProjects.map((p, i) => ({
+      ...p,
+      id: `${p.id}-clone-before`,
+      position: { x: p.position.x, y: p.position.y },
+    })),
+    // Original (section 1 - middle)
+    ...baseProjects.map((p) => ({
+      ...p,
+      position: { x: p.position.x + SECTION_WIDTH, y: p.position.y },
+    })),
+    // Clone after (section 2)
+    ...baseProjects.map((p, i) => ({
+      ...p,
+      id: `${p.id}-clone-after`,
+      position: { x: p.position.x + SECTION_WIDTH * 2, y: p.position.y },
+    })),
+  ];
+
+  // Initialize scroll position to the middle section
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = SECTION_WIDTH;
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowInstructions(false), 5000);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Handle infinite scroll loop
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || isDragging) return;
+
+    const scrollPos = containerRef.current.scrollLeft;
+    
+    // If scrolled to the end (clone after section), jump to beginning of middle
+    if (scrollPos >= SECTION_WIDTH * 2) {
+      containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
+    }
+    // If scrolled to the beginning (clone before section), jump to end of middle
+    else if (scrollPos <= 0) {
+      containerRef.current.scrollLeft = scrollPos + SECTION_WIDTH;
+    }
+  }, [isDragging]);
+
+  // Check for loop on scroll end
+  const handleScrollEnd = useCallback(() => {
+    if (!containerRef.current) return;
+
+    const scrollPos = containerRef.current.scrollLeft;
+    
+    if (scrollPos >= SECTION_WIDTH * 2 - 100) {
+      containerRef.current.scrollLeft = SECTION_WIDTH + (scrollPos - SECTION_WIDTH * 2);
+    } else if (scrollPos <= 100) {
+      containerRef.current.scrollLeft = SECTION_WIDTH * 2 - (100 - scrollPos);
+    }
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -148,6 +208,7 @@ const Universe = () => {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    handleScrollEnd();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -155,7 +216,20 @@ const Universe = () => {
     e.preventDefault();
     const x = e.pageX - containerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
-    containerRef.current.scrollLeft = scrollLeft - walk;
+    const newScrollLeft = scrollLeft - walk;
+    containerRef.current.scrollLeft = newScrollLeft;
+
+    // Real-time loop check during drag
+    const scrollPos = containerRef.current.scrollLeft;
+    if (scrollPos >= SECTION_WIDTH * 2) {
+      containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    } else if (scrollPos <= 0) {
+      containerRef.current.scrollLeft = scrollPos + SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -169,17 +243,41 @@ const Universe = () => {
     if (!isDragging || !containerRef.current) return;
     const x = e.touches[0].pageX - containerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
-    containerRef.current.scrollLeft = scrollLeft - walk;
+    const newScrollLeft = scrollLeft - walk;
+    containerRef.current.scrollLeft = newScrollLeft;
+
+    // Real-time loop check during drag
+    const scrollPos = containerRef.current.scrollLeft;
+    if (scrollPos >= SECTION_WIDTH * 2) {
+      containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    } else if (scrollPos <= 0) {
+      containerRef.current.scrollLeft = scrollPos + SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    handleScrollEnd();
   };
 
   const scrollTo = (direction: 'left' | 'right') => {
     if (!containerRef.current) return;
     const scrollAmount = direction === 'left' ? -400 : 400;
     containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    
+    // Check for loop after smooth scroll completes
+    setTimeout(handleScrollEnd, 350);
   };
 
   const handleConstellationClick = (project: Project) => {
-    setSelectedProject(project);
+    // Find the original project (remove clone suffixes)
+    const originalId = project.id.replace('-clone-before', '').replace('-clone-after', '');
+    const originalProject = baseProjects.find(p => p.id === originalId) || project;
+    setSelectedProject(originalProject);
     setIsModalOpen(true);
   };
 
@@ -227,7 +325,7 @@ const Universe = () => {
             </div>
             <p className="text-lg font-body">Click and drag to explore the universe.</p>
             <p className="text-muted-foreground mt-2">Each constellation holds a different project.</p>
-            <p className="text-muted-foreground">Click the constellations to discover more.</p>
+            <p className="text-muted-foreground">The universe loops infinitely — keep exploring!</p>
           </div>
         </motion.div>
       )}
@@ -262,15 +360,16 @@ const Universe = () => {
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
         onTouchStart={handleTouchStart}
-        onTouchEnd={handleMouseUp}
+        onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
+        onScroll={handleScroll}
       >
         <div
           className="relative h-full"
-          style={{ width: `${universeWidth}px`, minHeight: '100vh' }}
+          style={{ width: `${totalWidth}px`, minHeight: '100vh' }}
         >
-          {/* Constellations */}
-          {projects.map((project) => (
+          {/* Constellations (3 copies for infinite loop) */}
+          {allProjects.map((project) => (
             <Constellation
               key={project.id}
               id={project.id}
