@@ -13,6 +13,10 @@ import phoenixImg from '@/assets/constellation-phoenix.png';
 import unicornImg from '@/assets/constellation-unicorn.png';
 import wolfImg from '@/assets/constellation-wolf.png';
 import dragonImg from '@/assets/constellation-dragon.png';
+import owlImg from '@/assets/constellation-owl.png';
+import bearImg from '@/assets/constellation-bear.png';
+import deerImg from '@/assets/constellation-deer.png';
+import butterflyImg from '@/assets/constellation-butterfly.png';
 
 interface Project {
   id: string;
@@ -47,7 +51,7 @@ const projects: Project[] = [
     constellationImage: unicornImg,
     link: '#',
     technologies: ['Next.js', 'Framer Motion', 'Three.js', 'Tailwind'],
-    position: { x: 700, y: 100 },
+    position: { x: 700, y: 80 },
   },
   {
     id: 'wolf',
@@ -58,7 +62,7 @@ const projects: Project[] = [
     constellationImage: wolfImg,
     link: '#',
     technologies: ['Vue.js', 'D3.js', 'Python', 'AWS'],
-    position: { x: 1200, y: 200 },
+    position: { x: 1200, y: 180 },
   },
   {
     id: 'dragon',
@@ -69,7 +73,51 @@ const projects: Project[] = [
     constellationImage: dragonImg,
     link: '#',
     technologies: ['React Native', 'Firebase', 'Redux', 'Expo'],
-    position: { x: 1700, y: 120 },
+    position: { x: 1700, y: 100 },
+  },
+  {
+    id: 'owl',
+    name: 'Owl',
+    title: 'AI Learning Platform',
+    description: 'An intelligent learning management system powered by AI. Features personalized learning paths, adaptive assessments, and real-time progress tracking for optimal educational outcomes.',
+    image: owlImg,
+    constellationImage: owlImg,
+    link: '#',
+    technologies: ['Python', 'TensorFlow', 'React', 'FastAPI'],
+    position: { x: 2200, y: 150 },
+  },
+  {
+    id: 'bear',
+    name: 'Bear',
+    title: 'Fitness Tracker',
+    description: 'A comprehensive fitness and wellness application that helps users track workouts, nutrition, and sleep patterns. Includes social features for community motivation and challenges.',
+    image: bearImg,
+    constellationImage: bearImg,
+    link: '#',
+    technologies: ['Swift', 'Kotlin', 'HealthKit', 'GraphQL'],
+    position: { x: 2700, y: 200 },
+  },
+  {
+    id: 'deer',
+    name: 'Deer',
+    title: 'Nature Photography',
+    description: 'A stunning photography portfolio and marketplace for nature photographers. Features high-resolution image galleries, print ordering, and licensing management.',
+    image: deerImg,
+    constellationImage: deerImg,
+    link: '#',
+    technologies: ['Gatsby', 'Cloudinary', 'Stripe', 'Sanity'],
+    position: { x: 3200, y: 120 },
+  },
+  {
+    id: 'butterfly',
+    name: 'Butterfly',
+    title: 'Social Impact App',
+    description: 'A platform connecting volunteers with local nonprofit organizations. Features event management, impact tracking, and community building tools for social good.',
+    image: butterflyImg,
+    constellationImage: butterflyImg,
+    link: '#',
+    technologies: ['React', 'Node.js', 'MongoDB', 'Socket.io'],
+    position: { x: 3700, y: 160 },
   },
 ];
 
@@ -84,7 +132,7 @@ const Universe = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
 
-  const universeWidth = 2200;
+  const universeWidth = 4200;
 
   useEffect(() => {
     const timer = setTimeout(() => setShowInstructions(false), 5000);
