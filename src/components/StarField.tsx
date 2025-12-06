@@ -51,11 +51,11 @@ const StarField = ({ starCount = 400, className = '', parallaxOffset = 0 }: Star
     });
   }, [starCount]);
 
-  // Spawn shooting stars randomly
+  // Spawn shooting stars every 3 seconds
   useEffect(() => {
     const spawnShootingStar = () => {
       const newStar: ShootingStar = {
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         startX: Math.random() * 80 + 10,
         startY: Math.random() * 40,
         angle: Math.random() * 30 + 15,
@@ -69,13 +69,13 @@ const StarField = ({ starCount = 400, className = '', parallaxOffset = 0 }: Star
       }, newStar.duration * 1000 + 100);
     };
 
+    // Spawn a shooting star every 3 seconds
     const interval = setInterval(() => {
-      if (Math.random() > 0.3) {
-        spawnShootingStar();
-      }
-    }, Math.random() * 5000 + 3000);
+      spawnShootingStar();
+    }, 3000);
 
-    const initialTimeout = setTimeout(spawnShootingStar, 2000);
+    // Initial spawn after a short delay
+    const initialTimeout = setTimeout(spawnShootingStar, 1000);
 
     return () => {
       clearInterval(interval);
@@ -91,7 +91,32 @@ const StarField = ({ starCount = 400, className = '', parallaxOffset = 0 }: Star
         background: 'linear-gradient(180deg, hsl(230 40% 4%) 0%, hsl(260 50% 10%) 40%, hsl(220 60% 12%) 70%, hsl(230 40% 6%) 100%)',
       }}
     >
-      {/* Nebula effects */}
+      {/* Drifting nebula clouds */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Large slow-moving nebula */}
+        <div 
+          className="absolute w-[150%] h-[150%] -top-1/4 -left-1/4 animate-nebula-drift-slow opacity-20"
+          style={{
+            background: 'radial-gradient(ellipse 60% 40% at 30% 40%, hsl(280 70% 30% / 0.6) 0%, transparent 50%), radial-gradient(ellipse 50% 35% at 70% 60%, hsl(200 80% 35% / 0.5) 0%, transparent 50%)',
+          }}
+        />
+        {/* Medium nebula layer */}
+        <div 
+          className="absolute w-[130%] h-[130%] -top-[15%] -left-[15%] animate-nebula-drift-medium opacity-25"
+          style={{
+            background: 'radial-gradient(ellipse 45% 50% at 60% 30%, hsl(260 60% 40% / 0.4) 0%, transparent 45%), radial-gradient(ellipse 40% 30% at 25% 70%, hsl(180 70% 30% / 0.4) 0%, transparent 40%)',
+          }}
+        />
+        {/* Smaller faster nebula wisps */}
+        <div 
+          className="absolute w-[120%] h-[120%] -top-[10%] -left-[10%] animate-nebula-drift-fast opacity-15"
+          style={{
+            background: 'radial-gradient(ellipse 30% 25% at 80% 20%, hsl(300 50% 45% / 0.5) 0%, transparent 40%), radial-gradient(ellipse 35% 20% at 15% 80%, hsl(220 60% 40% / 0.4) 0%, transparent 35%)',
+          }}
+        />
+      </div>
+
+      {/* Static nebula base */}
       <div 
         className="absolute inset-0 opacity-30"
         style={{
