@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -6,13 +6,16 @@ import StarField from '@/components/StarField';
 import Constellation from '@/components/Constellation';
 import ConstellationModal from '@/components/ConstellationModal';
 import MenuOverlay from '@/components/MenuOverlay';
-import { Button } from '@/components/ui/button';
 
 // Import constellation images
 import phoenixImg from '@/assets/constellation-phoenix.png';
 import unicornImg from '@/assets/constellation-unicorn.png';
 import wolfImg from '@/assets/constellation-wolf.png';
 import dragonImg from '@/assets/constellation-dragon.png';
+import owlImg from '@/assets/constellation-owl.png';
+import bearImg from '@/assets/constellation-bear.png';
+import deerImg from '@/assets/constellation-deer.png';
+import butterflyImg from '@/assets/constellation-butterfly.png';
 
 interface Project {
   id: string;
@@ -26,7 +29,7 @@ interface Project {
   position: { x: number; y: number };
 }
 
-const projects: Project[] = [
+const baseProjects: Project[] = [
   {
     id: 'phoenix',
     name: 'Phoenix',
@@ -47,7 +50,7 @@ const projects: Project[] = [
     constellationImage: unicornImg,
     link: '#',
     technologies: ['Next.js', 'Framer Motion', 'Three.js', 'Tailwind'],
-    position: { x: 700, y: 100 },
+    position: { x: 700, y: 80 },
   },
   {
     id: 'wolf',
@@ -58,7 +61,7 @@ const projects: Project[] = [
     constellationImage: wolfImg,
     link: '#',
     technologies: ['Vue.js', 'D3.js', 'Python', 'AWS'],
-    position: { x: 1200, y: 200 },
+    position: { x: 1200, y: 180 },
   },
   {
     id: 'dragon',
@@ -69,9 +72,56 @@ const projects: Project[] = [
     constellationImage: dragonImg,
     link: '#',
     technologies: ['React Native', 'Firebase', 'Redux', 'Expo'],
-    position: { x: 1700, y: 120 },
+    position: { x: 1700, y: 100 },
+  },
+  {
+    id: 'owl',
+    name: 'Owl',
+    title: 'AI Learning Platform',
+    description: 'An intelligent learning management system powered by AI. Features personalized learning paths, adaptive assessments, and real-time progress tracking for optimal educational outcomes.',
+    image: owlImg,
+    constellationImage: owlImg,
+    link: '#',
+    technologies: ['Python', 'TensorFlow', 'React', 'FastAPI'],
+    position: { x: 2200, y: 150 },
+  },
+  {
+    id: 'bear',
+    name: 'Bear',
+    title: 'Fitness Tracker',
+    description: 'A comprehensive fitness and wellness application that helps users track workouts, nutrition, and sleep patterns. Includes social features for community motivation and challenges.',
+    image: bearImg,
+    constellationImage: bearImg,
+    link: '#',
+    technologies: ['Swift', 'Kotlin', 'HealthKit', 'GraphQL'],
+    position: { x: 2700, y: 200 },
+  },
+  {
+    id: 'deer',
+    name: 'Deer',
+    title: 'Nature Photography',
+    description: 'A stunning photography portfolio and marketplace for nature photographers. Features high-resolution image galleries, print ordering, and licensing management.',
+    image: deerImg,
+    constellationImage: deerImg,
+    link: '#',
+    technologies: ['Gatsby', 'Cloudinary', 'Stripe', 'Sanity'],
+    position: { x: 3200, y: 120 },
+  },
+  {
+    id: 'butterfly',
+    name: 'Butterfly',
+    title: 'Social Impact App',
+    description: 'A platform connecting volunteers with local nonprofit organizations. Features event management, impact tracking, and community building tools for social good.',
+    image: butterflyImg,
+    constellationImage: butterflyImg,
+    link: '#',
+    technologies: ['React', 'Node.js', 'MongoDB', 'Socket.io'],
+    position: { x: 3700, y: 160 },
   },
 ];
+
+// Single section width (one complete set of constellations)
+const SECTION_WIDTH = 4200;
 
 const Universe = () => {
   const navigate = useNavigate();
@@ -84,11 +134,69 @@ const Universe = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
 
-  const universeWidth = 2200;
+  // Total width is 3x section width (clone before + original + clone after)
+  const totalWidth = SECTION_WIDTH * 3;
+
+  // Create 3 copies of projects for infinite scroll
+  const allProjects = [
+    // Clone before (section 0)
+    ...baseProjects.map((p, i) => ({
+      ...p,
+      id: `${p.id}-clone-before`,
+      position: { x: p.position.x, y: p.position.y },
+    })),
+    // Original (section 1 - middle)
+    ...baseProjects.map((p) => ({
+      ...p,
+      position: { x: p.position.x + SECTION_WIDTH, y: p.position.y },
+    })),
+    // Clone after (section 2)
+    ...baseProjects.map((p, i) => ({
+      ...p,
+      id: `${p.id}-clone-after`,
+      position: { x: p.position.x + SECTION_WIDTH * 2, y: p.position.y },
+    })),
+  ];
+
+  // Initialize scroll position to the middle section
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = SECTION_WIDTH;
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowInstructions(false), 5000);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Handle infinite scroll loop
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || isDragging) return;
+
+    const scrollPos = containerRef.current.scrollLeft;
+    
+    // If scrolled to the end (clone after section), jump to beginning of middle
+    if (scrollPos >= SECTION_WIDTH * 2) {
+      containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
+    }
+    // If scrolled to the beginning (clone before section), jump to end of middle
+    else if (scrollPos <= 0) {
+      containerRef.current.scrollLeft = scrollPos + SECTION_WIDTH;
+    }
+  }, [isDragging]);
+
+  // Check for loop on scroll end
+  const handleScrollEnd = useCallback(() => {
+    if (!containerRef.current) return;
+
+    const scrollPos = containerRef.current.scrollLeft;
+    
+    if (scrollPos >= SECTION_WIDTH * 2 - 100) {
+      containerRef.current.scrollLeft = SECTION_WIDTH + (scrollPos - SECTION_WIDTH * 2);
+    } else if (scrollPos <= 100) {
+      containerRef.current.scrollLeft = SECTION_WIDTH * 2 - (100 - scrollPos);
+    }
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -100,6 +208,7 @@ const Universe = () => {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    handleScrollEnd();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -107,7 +216,20 @@ const Universe = () => {
     e.preventDefault();
     const x = e.pageX - containerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
-    containerRef.current.scrollLeft = scrollLeft - walk;
+    const newScrollLeft = scrollLeft - walk;
+    containerRef.current.scrollLeft = newScrollLeft;
+
+    // Real-time loop check during drag
+    const scrollPos = containerRef.current.scrollLeft;
+    if (scrollPos >= SECTION_WIDTH * 2) {
+      containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    } else if (scrollPos <= 0) {
+      containerRef.current.scrollLeft = scrollPos + SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -121,17 +243,41 @@ const Universe = () => {
     if (!isDragging || !containerRef.current) return;
     const x = e.touches[0].pageX - containerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
-    containerRef.current.scrollLeft = scrollLeft - walk;
+    const newScrollLeft = scrollLeft - walk;
+    containerRef.current.scrollLeft = newScrollLeft;
+
+    // Real-time loop check during drag
+    const scrollPos = containerRef.current.scrollLeft;
+    if (scrollPos >= SECTION_WIDTH * 2) {
+      containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    } else if (scrollPos <= 0) {
+      containerRef.current.scrollLeft = scrollPos + SECTION_WIDTH;
+      setScrollLeft(containerRef.current.scrollLeft + walk);
+      setStartX(x);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    handleScrollEnd();
   };
 
   const scrollTo = (direction: 'left' | 'right') => {
     if (!containerRef.current) return;
     const scrollAmount = direction === 'left' ? -400 : 400;
     containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    
+    // Check for loop after smooth scroll completes
+    setTimeout(handleScrollEnd, 350);
   };
 
   const handleConstellationClick = (project: Project) => {
-    setSelectedProject(project);
+    // Find the original project (remove clone suffixes)
+    const originalId = project.id.replace('-clone-before', '').replace('-clone-after', '');
+    const originalProject = baseProjects.find(p => p.id === originalId) || project;
+    setSelectedProject(originalProject);
     setIsModalOpen(true);
   };
 
@@ -179,7 +325,7 @@ const Universe = () => {
             </div>
             <p className="text-lg font-body">Click and drag to explore the universe.</p>
             <p className="text-muted-foreground mt-2">Each constellation holds a different project.</p>
-            <p className="text-muted-foreground">Click the constellations to discover more.</p>
+            <p className="text-muted-foreground">The universe loops infinitely — keep exploring!</p>
           </div>
         </motion.div>
       )}
@@ -214,15 +360,16 @@ const Universe = () => {
         onMouseLeave={handleMouseUp}
         onMouseMove={handleMouseMove}
         onTouchStart={handleTouchStart}
-        onTouchEnd={handleMouseUp}
+        onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
+        onScroll={handleScroll}
       >
         <div
           className="relative h-full"
-          style={{ width: `${universeWidth}px`, minHeight: '100vh' }}
+          style={{ width: `${totalWidth}px`, minHeight: '100vh' }}
         >
-          {/* Constellations */}
-          {projects.map((project) => (
+          {/* Constellations (3 copies for infinite loop) */}
+          {allProjects.map((project) => (
             <Constellation
               key={project.id}
               id={project.id}
