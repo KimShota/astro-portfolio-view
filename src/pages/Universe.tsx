@@ -288,7 +288,7 @@ const Universe = () => {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Background with parallax */}
-      <StarField starCount={500} parallaxOffset={scrollOffset} />
+      <StarField starCount={800} parallaxOffset={scrollOffset} />
 
       {/* Back button */}
       <motion.button
