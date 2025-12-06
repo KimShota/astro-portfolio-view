@@ -25,10 +25,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - name: Clean workspace
+      - name: Clean and verify workspace
         run: |
+          # Remove any index.html directories
+          if [ -d "index.html" ]; then
+            rm -rf index.html
+          fi
+          # Remove build artifacts
           rm -rf node_modules dist
-          find . -name "index.html" -type d -exec rm -rf {} + 2>/dev/null || true
+          # Verify index.html is a file
+          if [ ! -f "index.html" ]; then
+            echo "Error: index.html is not a file!"
+            ls -la index.html || true
+            exit 1
+          fi
+          echo "Verified: index.html is a file"
       - run: npm ci
       - run: npm run build
       - uses: actions/configure-pages@v4
