@@ -129,6 +129,7 @@ const Universe = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [scrollOffset, setScrollOffset] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -172,9 +173,12 @@ const Universe = () => {
 
   // Handle infinite scroll loop
   const handleScroll = useCallback(() => {
-    if (!containerRef.current || isDragging) return;
+    if (!containerRef.current) return;
 
     const scrollPos = containerRef.current.scrollLeft;
+    setScrollOffset(scrollPos);
+    
+    if (isDragging) return;
     
     // If scrolled to the end (clone after section), jump to beginning of middle
     if (scrollPos >= SECTION_WIDTH * 2) {
@@ -283,8 +287,8 @@ const Universe = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Background */}
-      <StarField starCount={300} />
+      {/* Background with parallax */}
+      <StarField starCount={300} parallaxOffset={scrollOffset} />
 
       {/* Back button */}
       <motion.button

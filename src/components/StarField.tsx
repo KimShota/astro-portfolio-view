@@ -12,24 +12,34 @@ interface Star {
 interface StarFieldProps {
   starCount?: number;
   className?: string;
+  parallaxOffset?: number;
 }
 
-const StarField = ({ starCount = 200, className = '' }: StarFieldProps) => {
+const StarField = ({ starCount = 200, className = '', parallaxOffset = 0 }: StarFieldProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const stars = useMemo(() => {
-    const generatedStars: Star[] = [];
-    for (let i = 0; i < starCount; i++) {
-      generatedStars.push({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 2 + 1,
-        opacity: Math.random() * 0.5 + 0.3,
-        twinkleSpeed: Math.random() * 3 + 2,
-        twinkleDelay: Math.random() * 5,
-      });
-    }
-    return generatedStars;
+  // Create three layers of stars with different parallax speeds
+  const starLayers = useMemo(() => {
+    const layers = [
+      { count: Math.floor(starCount * 0.5), speed: 0.1, sizeRange: [0.5, 1.5] }, // Far stars - slowest
+      { count: Math.floor(starCount * 0.3), speed: 0.3, sizeRange: [1, 2] },     // Mid stars
+      { count: Math.floor(starCount * 0.2), speed: 0.5, sizeRange: [1.5, 3] },   // Near stars - fastest
+    ];
+
+    return layers.map((layer, layerIndex) => {
+      const stars: Star[] = [];
+      for (let i = 0; i < layer.count; i++) {
+        stars.push({
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          size: Math.random() * (layer.sizeRange[1] - layer.sizeRange[0]) + layer.sizeRange[0],
+          opacity: Math.random() * 0.5 + 0.3,
+          twinkleSpeed: Math.random() * 3 + 2,
+          twinkleDelay: Math.random() * 5,
+        });
+      }
+      return { stars, speed: layer.speed };
+    });
   }, [starCount]);
 
   return (
@@ -48,30 +58,36 @@ const StarField = ({ starCount = 200, className = '' }: StarFieldProps) => {
         }}
       />
       
-      {/* Stars */}
-      {stars.map((star, index) => (
+      {/* Star layers with parallax */}
+      {starLayers.map((layer, layerIndex) => (
         <div
-          key={index}
-          className="absolute rounded-full animate-twinkle"
+          key={layerIndex}
+          className="absolute inset-0"
           style={{
-            left: `${star.x}%`,
-            top: `${star.y}%`,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            backgroundColor: star.size > 2 ? 'hsl(200 90% 85%)' : 'hsl(210 40% 98%)',
-            boxShadow: star.size > 2 
-              ? `0 0 ${star.size * 3}px hsl(200 90% 70% / 0.6)` 
-              : `0 0 ${star.size * 2}px hsl(210 40% 98% / 0.4)`,
-            '--twinkle-duration': `${star.twinkleSpeed}s`,
-            '--twinkle-delay': `${star.twinkleDelay}s`,
-            animationDelay: `${star.twinkleDelay}s`,
-            animationDuration: `${star.twinkleSpeed}s`,
-          } as React.CSSProperties}
-        />
+            transform: `translateX(${-parallaxOffset * layer.speed}px)`,
+            willChange: 'transform',
+          }}
+        >
+          {layer.stars.map((star, index) => (
+            <div
+              key={index}
+              className="absolute rounded-full animate-twinkle"
+              style={{
+                left: `${star.x}%`,
+                top: `${star.y}%`,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                backgroundColor: star.size > 2 ? 'hsl(200 90% 85%)' : 'hsl(210 40% 98%)',
+                boxShadow: star.size > 2 
+                  ? `0 0 ${star.size * 3}px hsl(200 90% 70% / 0.6)` 
+                  : `0 0 ${star.size * 2}px hsl(210 40% 98% / 0.4)`,
+                animationDelay: `${star.twinkleDelay}s`,
+                animationDuration: `${star.twinkleSpeed}s`,
+              }}
+            />
+          ))}
+        </div>
       ))}
-
-      {/* Shooting star effect - occasional */}
-      <div className="absolute w-1 h-1 bg-star-white rounded-full opacity-0" />
     </div>
   );
 };
