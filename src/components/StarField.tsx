@@ -21,14 +21,13 @@ interface StarFieldProps {
   starCount?: number;
   className?: string;
   parallaxOffset?: number;
-  universeWidth?: number;
 }
 
-const StarField = ({ starCount = 400, className = '', parallaxOffset = 0, universeWidth = 4200 }: StarFieldProps) => {
+const StarField = ({ starCount = 400, className = '', parallaxOffset = 0 }: StarFieldProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [shootingStars, setShootingStars] = useState<ShootingStar[]>([]);
 
-  // Create three layers of stars with different parallax speeds across the full universe width
+  // Create three layers of stars with different parallax speeds
   const starLayers = useMemo(() => {
     const layers = [
       { count: Math.floor(starCount * 0.5), speed: 0.1, sizeRange: [0.5, 1.5] }, // Far stars - slowest
@@ -36,16 +35,11 @@ const StarField = ({ starCount = 400, className = '', parallaxOffset = 0, univer
       { count: Math.floor(starCount * 0.2), speed: 0.5, sizeRange: [2, 3.5] },   // Near stars - fastest
     ];
 
-    // Calculate how many viewport widths the universe spans (approximately)
-    const viewportMultiplier = Math.ceil(universeWidth / 1000);
-
     return layers.map((layer) => {
       const stars: Star[] = [];
-      // Generate more stars based on universe width
-      const totalStars = layer.count * viewportMultiplier;
-      for (let i = 0; i < totalStars; i++) {
+      for (let i = 0; i < layer.count; i++) {
         stars.push({
-          x: Math.random() * 100 * viewportMultiplier, // Spread across full width
+          x: Math.random() * 100,
           y: Math.random() * 100,
           size: Math.random() * (layer.sizeRange[1] - layer.sizeRange[0]) + layer.sizeRange[0],
           opacity: Math.random() * 0.5 + 0.3,
@@ -53,9 +47,9 @@ const StarField = ({ starCount = 400, className = '', parallaxOffset = 0, univer
           twinkleDelay: Math.random() * 5,
         });
       }
-      return { stars, speed: layer.speed, widthMultiplier: viewportMultiplier };
+      return { stars, speed: layer.speed };
     });
-  }, [starCount, universeWidth]);
+  }, [starCount]);
 
   // Spawn shooting stars every 3 seconds
   useEffect(() => {
@@ -136,7 +130,6 @@ const StarField = ({ starCount = 400, className = '', parallaxOffset = 0, univer
           key={layerIndex}
           className="absolute inset-0"
           style={{
-            width: `${layer.widthMultiplier * 100}%`,
             transform: `translateX(${-parallaxOffset * layer.speed}px)`,
             willChange: 'transform',
           }}
