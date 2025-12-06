@@ -4,5 +4,10 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: '/astro-portfolio-view/',
+  root: '.',
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
 });
 

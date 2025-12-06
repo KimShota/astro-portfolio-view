@@ -25,6 +25,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
+      - name: Clean workspace
+        run: |
+          rm -rf node_modules dist
+          find . -name "index.html" -type d -exec rm -rf {} + 2>/dev/null || true
       - run: npm ci
       - run: npm run build
       - uses: actions/configure-pages@v4
