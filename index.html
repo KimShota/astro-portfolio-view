@@ -28,24 +28,6 @@
 
   <body>
     <div id="root"></div>
-    
-    <!-- React and dependencies from CDN - must load before script.js -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-router-dom@6/dist/umd/react-router-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/framer-motion@12/dist/framer-motion.umd.js"></script>
-    
-    <!-- Script loading error handler -->
-    <script>
-      // Verify scripts are loading
-      window.addEventListener('error', function(e) {
-        if (e.target.tagName === 'SCRIPT') {
-          console.error('Script failed to load:', e.target.src);
-        }
-      }, true);
-    </script>
-    
-    <!-- Main application script -->
-    <script src="script.js"></script>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

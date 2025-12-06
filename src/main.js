@@ -1,103 +1,28 @@
-// Wait for all dependencies to load, then initialize the app
-(function() {
-  'use strict';
-  
-  function initApp() {
-    console.log('=== Initializing App ===');
-    console.log('React:', typeof React !== 'undefined' ? '✓ Loaded' : '✗ Missing');
-    console.log('ReactDOM:', typeof ReactDOM !== 'undefined' ? '✓ Loaded' : '✗ Missing');
-    console.log('ReactRouterDOM:', typeof ReactRouterDOM !== 'undefined' ? '✓ Loaded' : '✗ Missing');
-    console.log('Motion:', (typeof window.Motion !== 'undefined' || typeof window.framerMotion !== 'undefined') ? '✓ Available' : '✗ Using fallback');
-    
-    // Check if React is loaded
-    if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
-      console.error('React is not loaded. Please check CDN links.');
-      const root = document.getElementById('root');
-      if (root) {
-        root.innerHTML = '<div style="color: white; padding: 20px; font-family: Arial; text-align: center;">Error: React is not loaded. Please check your internet connection and CDN links.</div>';
-      }
-      return;
-    }
-    
-    const { useState, useEffect, useRef, useMemo, useCallback, Fragment, forwardRef } = React;
-    
-    // Check React Router DOM
-    if (typeof ReactRouterDOM === 'undefined') {
-      console.error('React Router DOM is not loaded.');
-      const root = document.getElementById('root');
-      if (root) {
-        root.innerHTML = '<div style="color: white; padding: 20px; font-family: Arial; text-align: center;">Error: React Router DOM is not loaded.</div>';
-      }
-      return;
-    }
-    
-    const { BrowserRouter, Routes, Route, useNavigate, useLocation, Link } = ReactRouterDOM;
+import React, { useState, useEffect, useRef, useMemo, useCallback, Fragment, forwardRef } from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
-    // Framer Motion - try to get from global scope
-    let motion, AnimatePresence;
-    
-    if (typeof window !== 'undefined') {
-      if (window.Motion && window.Motion.motion) {
-        motion = window.Motion.motion;
-        AnimatePresence = window.Motion.AnimatePresence || Fragment;
-      } else if (window.framerMotion && window.framerMotion.motion) {
-        motion = window.framerMotion.motion;
-        AnimatePresence = window.framerMotion.AnimatePresence || Fragment;
-      } else {
-        // Fallback: create simple motion components
-        const createMotionComponent = (tag) => {
-          return forwardRef((props, ref) => {
-            const { initial, animate, exit, transition, whileHover, ...rest } = props;
-            const [style, setStyle] = useState(initial || {});
-            
-            useEffect(() => {
-              if (animate) {
-                const timer = setTimeout(() => {
-                  setStyle(animate);
-                }, transition?.delay || 0);
-                return () => clearTimeout(timer);
-              }
-            }, [animate, transition]);
-            
-            const mergedStyle = { ...rest.style, ...style };
-            return React.createElement(tag, { ...rest, ref, style: mergedStyle });
-          });
-        };
-        
-        motion = {
-          div: createMotionComponent('div'),
-          button: createMotionComponent('button'),
-          img: createMotionComponent('img'),
-        };
-        AnimatePresence = Fragment;
-      }
-    } else {
-      motion = {
-        div: (props) => React.createElement('div', props),
-        button: (props) => React.createElement('button', props),
-        img: (props) => React.createElement('img', props),
-      };
-      AnimatePresence = Fragment;
-    }
+// Framer Motion is imported at the top
 
-    // Utility function (cn equivalent)
-    function cn(...inputs) {
+// Utility function (cn equivalent)
+function cn(...inputs) {
       return inputs.filter(Boolean).join(' ');
-    }
+}
 
-    // Simple Button component
-    function Button({ children, className = '', variant = 'default', size = 'default', onClick, asChild, ...props }) {
-      const baseClasses = 'btn';
-      const variantClasses = {
+// Simple Button component
+function Button({ children, className = '', variant = 'default', size = 'default', onClick, asChild, ...props }) {
+  const baseClasses = 'btn';
+  const variantClasses = {
         cosmos: 'btn-cosmos',
         cosmosOutline: 'btn-cosmos-outline',
       };
-      const sizeClasses = {
+  const sizeClasses = {
         lg: 'btn-lg',
         xl: 'btn-xl',
       };
       
-      const classes = cn(
+  const classes = cn(
         baseClasses,
         variantClasses[variant] || '',
         sizeClasses[size] || '',
@@ -109,22 +34,22 @@
       }
       
       return React.createElement('button', { className: classes, onClick, ...props }, children);
-    }
+}
 
-    // StarField Component
-    function StarField({ starCount = 400, className = '', parallaxOffset = 0 }) {
-      const containerRef = useRef(null);
+// StarField Component
+function StarField({ starCount = 400, className = '', parallaxOffset = 0 }) {
+  const containerRef = useRef(null);
       const [shootingStars, setShootingStars] = useState([]);
 
-      const starLayers = useMemo(() => {
-        const layers = [
+  const starLayers = useMemo(() => {
+    const layers = [
           { count: Math.floor(starCount * 0.5), speed: 0.1, sizeRange: [0.5, 1.5] },
           { count: Math.floor(starCount * 0.3), speed: 0.3, sizeRange: [1, 2.5] },
           { count: Math.floor(starCount * 0.2), speed: 0.5, sizeRange: [2, 3.5] },
         ];
 
         return layers.map((layer) => {
-          const stars = [];
+      const stars = [];
           for (let i = 0; i < layer.count; i++) {
             stars.push({
               x: Math.random() * 100,
@@ -140,8 +65,8 @@
       }, [starCount]);
 
       useEffect(() => {
-        const spawnShootingStar = () => {
-          const newStar = {
+    const spawnShootingStar = () => {
+      const newStar = {
             id: Date.now() + Math.random(),
             startX: Math.random() * 80 + 10,
             startY: Math.random() * 40,
@@ -156,11 +81,11 @@
           }, newStar.duration * 1000 + 100);
         };
 
-        const interval = setInterval(() => {
+    const interval = setInterval(() => {
           spawnShootingStar();
         }, 3000);
 
-        const initialTimeout = setTimeout(spawnShootingStar, 1000);
+    const initialTimeout = setTimeout(spawnShootingStar, 1000);
 
         return () => {
           clearInterval(interval);
@@ -265,10 +190,10 @@
           ]))
         ),
       ]);
-    }
+}
 
-    // Constellation Component
-    function Constellation({ name, image, position, onClick }) {
+// Constellation Component
+function Constellation({ name, image, position, onClick }) {
       return React.createElement(motion.div, {
         className: 'absolute cursor-pointer group',
         style: {
@@ -316,10 +241,10 @@
           className: 'text-primary text-xs font-display tracking-wider'
         }, 'Click to view')))
       ]);
-    }
+}
 
-    // ConstellationModal Component
-    function ConstellationModal({ project, isOpen, onClose }) {
+// ConstellationModal Component
+function ConstellationModal({ project, isOpen, onClose }) {
       if (!project) return null;
 
       if (!isOpen) return null;
@@ -444,17 +369,17 @@
           }, 'Back to Universe'))
         ]))
       )
-    }
+}
 
-    // MenuOverlay Component
-    function MenuOverlay({ isOpen, onClose }) {
-      const menuItems = [
+// MenuOverlay Component
+function MenuOverlay({ isOpen, onClose }) {
+  const menuItems = [
         { label: 'Home', path: '/', icon: 'Home' },
         { label: 'Who', path: '/who', icon: 'User' },
       ];
 
-      const IconComponent = ({ name, className }) => {
-        const icons = {
+  const IconComponent = ({ name, className }) => {
+    const icons = {
           Home: React.createElement('svg', { className, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
             React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: 2, d: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' })
           ),
@@ -514,11 +439,11 @@
           ))
         ])
       ]);
-    }
+}
 
-    // Index Page
-    function Index() {
-      const navigate = useNavigate();
+// Index Page
+function Index() {
+  const navigate = useNavigate();
 
       return React.createElement('div', { className: 'relative min-h-screen overflow-hidden' }, [
         React.createElement(StarField, { key: 'stars', starCount: 250 }),
@@ -581,28 +506,28 @@
           ]))
         ])
       ]);
-    }
+}
 
-    // Who Page
-    function Who() {
-      const navigate = useNavigate();
+// Who Page
+function Who() {
+  const navigate = useNavigate();
 
-      const skills = [
+  const skills = [
         { category: 'Frontend', items: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Framer Motion'] },
         { category: 'Backend', items: ['Node.js', 'Python', 'PostgreSQL', 'MongoDB', 'GraphQL'] },
         { category: 'Design', items: ['Figma', 'Adobe XD', 'UI/UX', 'Prototyping', 'Design Systems'] },
         { category: 'Tools', items: ['Git', 'Docker', 'AWS', 'Vercel', 'CI/CD'] },
       ];
 
-      const socialLinks = [
+  const socialLinks = [
         { name: 'Email', icon: 'Mail', href: 'mailto:hello@example.com' },
         { name: 'GitHub', icon: 'Github', href: '#' },
         { name: 'LinkedIn', icon: 'Linkedin', href: '#' },
         { name: 'Twitter', icon: 'Twitter', href: '#' },
       ];
 
-      const IconComponent = ({ name, className }) => {
-        const icons = {
+  const IconComponent = ({ name, className }) => {
+    const icons = {
           ArrowLeft: React.createElement('svg', { className, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
             React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: 2, d: 'M10 19l-7-7m0 0l7-7m-7 7h18' })
           ),
@@ -798,12 +723,12 @@
           ])
         ])
       ]);
-    }
+}
 
-    // Universe Page
-    function Universe() {
-      const navigate = useNavigate();
-      const containerRef = useRef(null);
+// Universe Page
+function Universe() {
+  const navigate = useNavigate();
+  const containerRef = useRef(null);
       const [isDragging, setIsDragging] = useState(false);
       const [startX, setStartX] = useState(0);
       const [scrollLeft, setScrollLeft] = useState(0);
@@ -813,14 +738,14 @@
       const [isMenuOpen, setIsMenuOpen] = useState(false);
       const [showInstructions, setShowInstructions] = useState(true);
 
-      const baseProjects = [
+  const baseProjects = [
         {
           id: 'phoenix',
           name: 'Phoenix',
           title: 'E-Commerce Platform',
           description: 'A modern e-commerce solution built with cutting-edge technologies. Features include real-time inventory management, seamless checkout experience, and responsive design that works beautifully across all devices.',
-          image: './src/assets/constellation-phoenix.png',
-          constellationImage: './src/assets/constellation-phoenix.png',
+          image: '/src/assets/constellation-phoenix.png',
+          constellationImage: '/src/assets/constellation-phoenix.png',
           link: '#',
           technologies: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
           position: { x: 200, y: 150 },
@@ -830,8 +755,8 @@
           name: 'Unicorn',
           title: 'Creative Portfolio',
           description: 'An immersive portfolio experience showcasing creative works through interactive animations and stunning visuals. Built with performance in mind while maintaining artistic expression.',
-          image: './src/assets/constellation-unicorn.png',
-          constellationImage: './src/assets/constellation-unicorn.png',
+          image: '/src/assets/constellation-unicorn.png',
+          constellationImage: '/src/assets/constellation-unicorn.png',
           link: '#',
           technologies: ['Next.js', 'Framer Motion', 'Three.js', 'Tailwind'],
           position: { x: 700, y: 80 },
@@ -841,8 +766,8 @@
           name: 'Wolf',
           title: 'Analytics Dashboard',
           description: 'A comprehensive analytics platform that transforms complex data into actionable insights. Features real-time data visualization, custom reporting, and intuitive user interface.',
-          image: './src/assets/constellation-wolf.png',
-          constellationImage: './src/assets/constellation-wolf.png',
+          image: '/src/assets/constellation-wolf.png',
+          constellationImage: '/src/assets/constellation-wolf.png',
           link: '#',
           technologies: ['Vue.js', 'D3.js', 'Python', 'AWS'],
           position: { x: 1200, y: 180 },
@@ -852,8 +777,8 @@
           name: 'Dragon',
           title: 'Mobile Application',
           description: 'A cross-platform mobile application designed for seamless user experience. Incorporates native features while maintaining consistent design language across iOS and Android.',
-          image: './src/assets/constellation-dragon.png',
-          constellationImage: './src/assets/constellation-dragon.png',
+          image: '/src/assets/constellation-dragon.png',
+          constellationImage: '/src/assets/constellation-dragon.png',
           link: '#',
           technologies: ['React Native', 'Firebase', 'Redux', 'Expo'],
           position: { x: 1700, y: 100 },
@@ -863,8 +788,8 @@
           name: 'Owl',
           title: 'AI Learning Platform',
           description: 'An intelligent learning management system powered by AI. Features personalized learning paths, adaptive assessments, and real-time progress tracking for optimal educational outcomes.',
-          image: './src/assets/constellation-owl.png',
-          constellationImage: './src/assets/constellation-owl.png',
+          image: '/src/assets/constellation-owl.png',
+          constellationImage: '/src/assets/constellation-owl.png',
           link: '#',
           technologies: ['Python', 'TensorFlow', 'React', 'FastAPI'],
           position: { x: 2200, y: 150 },
@@ -874,8 +799,8 @@
           name: 'Bear',
           title: 'Fitness Tracker',
           description: 'A comprehensive fitness and wellness application that helps users track workouts, nutrition, and sleep patterns. Includes social features for community motivation and challenges.',
-          image: './src/assets/constellation-bear.png',
-          constellationImage: './src/assets/constellation-bear.png',
+          image: '/src/assets/constellation-bear.png',
+          constellationImage: '/src/assets/constellation-bear.png',
           link: '#',
           technologies: ['Swift', 'Kotlin', 'HealthKit', 'GraphQL'],
           position: { x: 2700, y: 200 },
@@ -885,8 +810,8 @@
           name: 'Deer',
           title: 'Nature Photography',
           description: 'A stunning photography portfolio and marketplace for nature photographers. Features high-resolution image galleries, print ordering, and licensing management.',
-          image: './src/assets/constellation-deer.png',
-          constellationImage: './src/assets/constellation-deer.png',
+          image: '/src/assets/constellation-deer.png',
+          constellationImage: '/src/assets/constellation-deer.png',
           link: '#',
           technologies: ['Gatsby', 'Cloudinary', 'Stripe', 'Sanity'],
           position: { x: 3200, y: 120 },
@@ -896,18 +821,18 @@
           name: 'Butterfly',
           title: 'Social Impact App',
           description: 'A platform connecting volunteers with local nonprofit organizations. Features event management, impact tracking, and community building tools for social good.',
-          image: './src/assets/constellation-butterfly.png',
-          constellationImage: './src/assets/constellation-butterfly.png',
+          image: '/src/assets/constellation-butterfly.png',
+          constellationImage: '/src/assets/constellation-butterfly.png',
           link: '#',
           technologies: ['React', 'Node.js', 'MongoDB', 'Socket.io'],
           position: { x: 3700, y: 160 },
         },
       ];
 
-      const SECTION_WIDTH = 4200;
-      const totalWidth = SECTION_WIDTH * 3;
+  const SECTION_WIDTH = 4200;
+  const totalWidth = SECTION_WIDTH * 3;
 
-      const allProjects = [
+  const allProjects = [
         ...baseProjects.map((p) => ({
           ...p,
           id: `${p.id}-clone-before`,
@@ -931,13 +856,13 @@
       }, []);
 
       useEffect(() => {
-        const timer = setTimeout(() => setShowInstructions(false), 5000);
+    const timer = setTimeout(() => setShowInstructions(false), 5000);
         return () => clearTimeout(timer);
       }, []);
 
-      const handleScroll = useCallback(() => {
+  const handleScroll = useCallback(() => {
         if (!containerRef.current) return;
-        const scrollPos = containerRef.current.scrollLeft;
+    const scrollPos = containerRef.current.scrollLeft;
         setScrollOffset(scrollPos);
         if (isDragging) return;
         if (scrollPos >= SECTION_WIDTH * 2) {
@@ -947,9 +872,9 @@
         }
       }, [isDragging]);
 
-      const handleScrollEnd = useCallback(() => {
+  const handleScrollEnd = useCallback(() => {
         if (!containerRef.current) return;
-        const scrollPos = containerRef.current.scrollLeft;
+    const scrollPos = containerRef.current.scrollLeft;
         if (scrollPos >= SECTION_WIDTH * 2 - 100) {
           containerRef.current.scrollLeft = SECTION_WIDTH + (scrollPos - SECTION_WIDTH * 2);
         } else if (scrollPos <= 100) {
@@ -957,26 +882,26 @@
         }
       }, []);
 
-      const handleMouseDown = (e) => {
+  const handleMouseDown = (e) => {
         if (!containerRef.current) return;
         setIsDragging(true);
         setStartX(e.pageX - containerRef.current.offsetLeft);
         setScrollLeft(containerRef.current.scrollLeft);
       };
 
-      const handleMouseUp = () => {
+  const handleMouseUp = () => {
         setIsDragging(false);
         handleScrollEnd();
       };
 
-      const handleMouseMove = (e) => {
+  const handleMouseMove = (e) => {
         if (!isDragging || !containerRef.current) return;
         e.preventDefault();
-        const x = e.pageX - containerRef.current.offsetLeft;
-        const walk = (x - startX) * 1.5;
-        const newScrollLeft = scrollLeft - walk;
+    const x = e.pageX - containerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    const newScrollLeft = scrollLeft - walk;
         containerRef.current.scrollLeft = newScrollLeft;
-        const scrollPos = containerRef.current.scrollLeft;
+    const scrollPos = containerRef.current.scrollLeft;
         if (scrollPos >= SECTION_WIDTH * 2) {
           containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
           setScrollLeft(containerRef.current.scrollLeft + walk);
@@ -988,20 +913,20 @@
         }
       };
 
-      const handleTouchStart = (e) => {
+  const handleTouchStart = (e) => {
         if (!containerRef.current) return;
         setIsDragging(true);
         setStartX(e.touches[0].pageX - containerRef.current.offsetLeft);
         setScrollLeft(containerRef.current.scrollLeft);
       };
 
-      const handleTouchMove = (e) => {
+  const handleTouchMove = (e) => {
         if (!isDragging || !containerRef.current) return;
-        const x = e.touches[0].pageX - containerRef.current.offsetLeft;
-        const walk = (x - startX) * 1.5;
-        const newScrollLeft = scrollLeft - walk;
+    const x = e.touches[0].pageX - containerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    const newScrollLeft = scrollLeft - walk;
         containerRef.current.scrollLeft = newScrollLeft;
-        const scrollPos = containerRef.current.scrollLeft;
+    const scrollPos = containerRef.current.scrollLeft;
         if (scrollPos >= SECTION_WIDTH * 2) {
           containerRef.current.scrollLeft = scrollPos - SECTION_WIDTH;
           setScrollLeft(containerRef.current.scrollLeft + walk);
@@ -1013,27 +938,27 @@
         }
       };
 
-      const handleTouchEnd = () => {
+  const handleTouchEnd = () => {
         setIsDragging(false);
         handleScrollEnd();
       };
 
-      const scrollTo = (direction) => {
+  const scrollTo = (direction) => {
         if (!containerRef.current) return;
-        const scrollAmount = direction === 'left' ? -400 : 400;
+    const scrollAmount = direction === 'left' ? -400 : 400;
         containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         setTimeout(handleScrollEnd, 350);
       };
 
-      const handleConstellationClick = (project) => {
-        const originalId = project.id.replace('-clone-before', '').replace('-clone-after', '');
-        const originalProject = baseProjects.find(p => p.id === originalId) || project;
+  const handleConstellationClick = (project) => {
+    const originalId = project.id.replace('-clone-before', '').replace('-clone-after', '');
+    const originalProject = baseProjects.find(p => p.id === originalId) || project;
         setSelectedProject(originalProject);
         setIsModalOpen(true);
       };
 
-      const IconComponent = ({ name, className }) => {
-        const icons = {
+  const IconComponent = ({ name, className }) => {
+    const icons = {
           ArrowLeft: React.createElement('svg', { className, fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },
             React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: 2, d: 'M10 19l-7-7m0 0l7-7m-7 7h18' })
           ),
@@ -1160,11 +1085,11 @@
           React.createElement('span', { key: 'span', className: 'text-primary' }, 'UNIVERSE')
         ]))
       ]);
-    }
+}
 
-    // NotFound Page
-    function NotFound() {
-      const location = useLocation();
+// NotFound Page
+function NotFound() {
+  const location = useLocation();
 
       useEffect(() => {
         console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -1183,57 +1108,23 @@
           className: 'text-primary underline hover:text-primary/90'
         }, 'Return to Home')
       ]));
-    }
+}
 
-    // App Component
-    function App() {
+// App Component
+function App() {
       return React.createElement(BrowserRouter, {}, React.createElement(Routes, {}, [
         React.createElement(Route, { key: '/', path: '/', element: React.createElement(Index) }),
         React.createElement(Route, { key: '/universe', path: '/universe', element: React.createElement(Universe) }),
         React.createElement(Route, { key: '/who', path: '/who', element: React.createElement(Who) }),
         React.createElement(Route, { key: '*', path: '*', element: React.createElement(NotFound) })
       ]));
-    }
+}
 
-    // Render the app
-    const rootElement = document.getElementById('root');
-    if (rootElement) {
-      const root = ReactDOM.createRoot(rootElement);
-      root.render(React.createElement(App));
-    } else {
-      console.error('Root element not found');
-    }
-  }
-
-  // Wait for all CDN scripts to load before initializing
-  function waitForScripts() {
-    const maxAttempts = 100; // 5 seconds max (50ms * 100)
-    let attempts = 0;
-    
-    const checkScripts = setInterval(function() {
-      attempts++;
-      
-      if (typeof React !== 'undefined' && 
-          typeof ReactDOM !== 'undefined' && 
-          typeof ReactRouterDOM !== 'undefined') {
-        clearInterval(checkScripts);
-        console.log('All scripts loaded, initializing app...');
-        initApp();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(checkScripts);
-        console.error('Scripts failed to load after 5 seconds');
-        const root = document.getElementById('root');
-        if (root) {
-          root.innerHTML = '<div style="color: white; padding: 20px; font-family: Arial; text-align: center; background: #1a1a1a; min-height: 100vh; display: flex; align-items: center; justify-content: center;"><div><h1 style="color: #ff6b6b;">Loading Error</h1><p>Failed to load required scripts. Please check:</p><ul style="text-align: left; display: inline-block;"><li>Your internet connection</li><li>Browser console for errors (F12)</li><li>CDN availability</li></ul></div></div>';
-        }
-      }
-    }, 50);
-  }
-
-  // Start checking for scripts
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', waitForScripts);
-  } else {
-    waitForScripts();
-  }
-})();
+// Render the app
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(React.createElement(App));
+} else {
+  console.error('Root element not found');
+}
