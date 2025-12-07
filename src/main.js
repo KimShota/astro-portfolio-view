@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback, Fragment, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, Fragment, forwardRef, createContext, useContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +20,86 @@ function resolveAssetPath(path) {
   // For relative paths, ensure they resolve from the base
   // In GitHub Pages with base /astro-portfolio-view/, we need to prepend it
   return `/astro-portfolio-view/${path}`;
+}
+
+// Audio Context for managing background music and sound effects
+const AudioContext = createContext(null);
+
+// Audio Provider Component
+function AudioProvider({ children }) {
+  const backgroundMusicRef = useRef(null);
+  const buttonSoundRef = useRef(null);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+
+  useEffect(() => {
+    // Initialize audio elements
+    const bgMusic = new Audio(resolveAssetPath('assets/background-music.mp3'));
+    bgMusic.loop = true;
+    bgMusic.volume = 0.3; // 30% volume
+    backgroundMusicRef.current = bgMusic;
+
+    const btnSound = new Audio(resolveAssetPath('assets/button-click.mp3'));
+    btnSound.volume = 0.5; // 50% volume
+    buttonSoundRef.current = btnSound;
+
+    // Function to start background music after user interaction
+    const startMusic = async () => {
+      if (!hasUserInteracted && bgMusic) {
+        try {
+          await bgMusic.play();
+          setIsMusicPlaying(true);
+          setHasUserInteracted(true);
+        } catch (err) {
+          console.log('Background music play failed:', err);
+        }
+      }
+    };
+
+    // Listen for user interaction to start music
+    const handleUserInteraction = () => {
+      startMusic();
+    };
+
+    document.addEventListener('click', handleUserInteraction, { once: true });
+    document.addEventListener('touchstart', handleUserInteraction, { once: true });
+
+    return () => {
+      if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+      }
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, []); // Empty dependency array - only run once on mount
+
+  // Function to play button click sound
+  const playButtonSound = useCallback(() => {
+    if (buttonSoundRef.current) {
+      buttonSoundRef.current.currentTime = 0; // Reset to start
+      buttonSoundRef.current.play().catch(err => {
+        console.log('Button sound play failed:', err);
+      });
+    }
+  }, []);
+
+  const value = {
+    playButtonSound,
+    isMusicPlaying,
+    backgroundMusicRef
+  };
+
+  return React.createElement(AudioContext.Provider, { value }, children);
+}
+
+// Hook to use audio context
+function useAudio() {
+  const context = useContext(AudioContext);
+  if (!context) {
+    throw new Error('useAudio must be used within AudioProvider');
+  }
+  return context;
 }
 
 
@@ -258,6 +338,7 @@ function Constellation({ name, image, position, onClick }) {
 
 // ConstellationModal Component
 function ConstellationModal({ project, isOpen, onClose }) {
+      const { playButtonSound } = useAudio();
       if (!project) return null;
 
       if (!isOpen) return null;
@@ -269,7 +350,10 @@ function ConstellationModal({ project, isOpen, onClose }) {
           initial: { opacity: 0 },
           animate: { opacity: 1 },
           exit: { opacity: 0 },
-          onClick: onClose
+          onClick: () => {
+            playButtonSound();
+            onClose();
+          }
         }),
         React.createElement(motion.div, {
           key: 'modal',
@@ -283,7 +367,10 @@ function ConstellationModal({ project, isOpen, onClose }) {
         }, [
           React.createElement('button', {
             key: 'close',
-            onClick: onClose,
+            onClick: () => {
+              playButtonSound();
+              onClose();
+            },
             className: 'absolute top-4 right-4 z-10 p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors'
           }, React.createElement('svg', {
             className: 'w-6 h-6 text-foreground',
@@ -376,9 +463,12 @@ function ConstellationModal({ project, isOpen, onClose }) {
           React.createElement('div', {
             key: 'back-mobile',
             className: 'absolute bottom-6 left-1/2 -translate-x-1/2 md:hidden'
-          }, React.createElement(Button, {
+          },           React.createElement(Button, {
             variant: 'cosmosOutline',
-            onClick: onClose
+            onClick: () => {
+              playButtonSound();
+              onClose();
+            }
           }, 'Back to Universe'))
         ]))
       )
@@ -386,6 +476,8 @@ function ConstellationModal({ project, isOpen, onClose }) {
 
 // MenuOverlay Component
 function MenuOverlay({ isOpen, onClose }) {
+  const { playButtonSound } = useAudio();
+  const navigate = useNavigate();
   const menuItems = [
         { label: 'Home', path: '/', icon: 'Home' },
         { label: 'Who', path: '/who', icon: 'User' },
@@ -424,7 +516,10 @@ function MenuOverlay({ isOpen, onClose }) {
         }, [
           React.createElement('button', {
             key: 'close',
-            onClick: onClose,
+            onClick: () => {
+              playButtonSound();
+              onClose();
+            },
             className: 'absolute top-6 right-6 p-3 rounded-full border-2 border-foreground/50 hover:border-foreground hover:bg-foreground/10 transition-all'
           }, React.createElement(IconComponent, { name: 'X', className: 'w-6 h-6 text-foreground' })),
           React.createElement('nav', {
@@ -439,7 +534,10 @@ function MenuOverlay({ isOpen, onClose }) {
               transition: { delay: index * 0.1 }
             }, React.createElement(Link, {
               to: item.path,
-              onClick: onClose,
+              onClick: () => {
+                playButtonSound();
+                onClose();
+              },
               className: 'group flex items-center gap-4 text-4xl md:text-6xl font-display tracking-widest text-foreground/70 hover:text-primary transition-colors duration-300'
             }, [
               React.createElement(IconComponent, {
@@ -457,6 +555,7 @@ function MenuOverlay({ isOpen, onClose }) {
 // Index Page
 function Index() {
   const navigate = useNavigate();
+  const { playButtonSound } = useAudio();
 
       return React.createElement('div', { className: 'relative min-h-screen overflow-hidden' }, [
         React.createElement(StarField, { key: 'stars', starCount: 250 }),
@@ -493,7 +592,10 @@ function Index() {
           }, React.createElement(Button, {
             variant: 'cosmos',
             size: 'xl',
-            onClick: () => navigate('/universe'),
+            onClick: () => {
+              playButtonSound();
+              navigate('/universe');
+            },
             className: 'relative overflow-hidden group'
           }, [
             React.createElement('span', { key: 'text', className: 'relative z-10' }, 'Start Exploring My Universe'),
@@ -524,6 +626,7 @@ function Index() {
 // Who Page
 function Who() {
   const navigate = useNavigate();
+  const { playButtonSound } = useAudio();
 
   const skills = [
         { category: 'Frontend', items: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Framer Motion', 'React Native', 'Expo', 'React Native Web'] },
@@ -727,7 +830,10 @@ function Who() {
                 transition: { delay: 0.4, duration: 0.6 }
               }, React.createElement(motion.button, {
                 className: 'btn btn-cosmos-outline btn-lg group relative px-8 py-4 text-lg font-display tracking-wide overflow-hidden',
-                onClick: () => navigate('/universe'),
+                onClick: () => {
+                  playButtonSound();
+                  navigate('/universe');
+                },
                 whileHover: { scale: 1.05, boxShadow: '0 0 30px rgba(251, 191, 36, 0.4)' },
                 whileTap: { scale: 0.98 },
                 transition: { type: 'spring', stiffness: 400, damping: 17 }
@@ -753,6 +859,7 @@ function Who() {
 // Universe Page
 function Universe() {
   const navigate = useNavigate();
+  const { playButtonSound } = useAudio();
   const containerRef = useRef(null);
       const [isDragging, setIsDragging] = useState(false);
       const [startX, setStartX] = useState(0);
@@ -976,6 +1083,7 @@ function Universe() {
       };
 
   const handleConstellationClick = (project) => {
+    playButtonSound();
     const originalId = project.id.replace('-clone-before', '').replace('-clone-after', '');
     const originalProject = baseProjects.find(p => p.id === originalId) || project;
         setSelectedProject(originalProject);
@@ -1013,7 +1121,10 @@ function Universe() {
         React.createElement(motion.button, {
           key: 'menu-btn',
           className: 'fixed top-6 right-6 z-40 flex items-center gap-2 px-4 py-3 rounded-full border-2 border-foreground/50 hover:border-foreground hover:bg-foreground/10 transition-all font-display tracking-wider text-foreground',
-          onClick: () => setIsMenuOpen(true),
+          onClick: () => {
+            playButtonSound();
+            setIsMenuOpen(true);
+          },
           initial: { opacity: 0, x: 20 },
           animate: { opacity: 1, x: 0 },
           transition: { delay: 0.3 }
@@ -1045,7 +1156,10 @@ function Universe() {
         React.createElement(motion.button, {
           key: 'scroll-left',
           className: 'fixed left-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-muted/30 hover:bg-muted/50 transition-all',
-          onClick: () => scrollTo('left'),
+          onClick: () => {
+            playButtonSound();
+            scrollTo('left');
+          },
           initial: { opacity: 0, x: -20 },
           animate: { opacity: 1, x: 0 },
           transition: { delay: 0.5 }
@@ -1053,7 +1167,10 @@ function Universe() {
         React.createElement(motion.button, {
           key: 'scroll-right',
           className: 'fixed right-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-muted/30 hover:bg-muted/50 transition-all',
-          onClick: () => scrollTo('right'),
+          onClick: () => {
+            playButtonSound();
+            scrollTo('right');
+          },
           initial: { opacity: 0, x: 20 },
           animate: { opacity: 1, x: 0 },
           transition: { delay: 0.5 }
@@ -1137,12 +1254,12 @@ function NotFound() {
 
 // App Component
 function App() {
-      return React.createElement(BrowserRouter, { basename: '/astro-portfolio-view/' }, React.createElement(Routes, {}, [
+      return React.createElement(AudioProvider, {}, React.createElement(BrowserRouter, { basename: '/astro-portfolio-view/' }, React.createElement(Routes, {}, [
         React.createElement(Route, { key: '/', path: '/', element: React.createElement(Index) }),
         React.createElement(Route, { key: '/universe', path: '/universe', element: React.createElement(Universe) }),
         React.createElement(Route, { key: '/who', path: '/who', element: React.createElement(Who) }),
         React.createElement(Route, { key: '*', path: '*', element: React.createElement(NotFound) })
-      ]));
+      ])));
 }
 
 // Render the app
