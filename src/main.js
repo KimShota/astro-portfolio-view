@@ -10,6 +10,19 @@ function cn(...inputs) {
       return inputs.filter(Boolean).join(' ');
 }
 
+// Helper function to resolve asset paths relative to base for GitHub Pages
+// This ensures relative paths work correctly with React Router sub-routes
+function resolveAssetPath(path) {
+  // If path is already absolute (starts with /), return as-is (Vite will handle base)
+  if (path.startsWith('/')) {
+    return path;
+  }
+  // For relative paths, ensure they resolve from the base
+  // In GitHub Pages with base /astro-portfolio-view/, we need to prepend it
+  return `/astro-portfolio-view/${path}`;
+}
+
+
 // Simple Button component
 function Button({ children, className = '', variant = 'default', size = 'default', onClick, asChild, ...props }) {
   const baseClasses = 'btn';
@@ -212,7 +225,7 @@ function Constellation({ name, image, position, onClick }) {
         }),
         React.createElement(motion.img, {
           key: 'image',
-          src: image,
+          src: resolveAssetPath(image),
           alt: name,
           className: 'relative w-48 h-48 md:w-64 md:h-64 object-contain constellation-glow transition-all duration-300 group-hover:brightness-125',
           draggable: false,
@@ -350,7 +363,7 @@ function ConstellationModal({ project, isOpen, onClose }) {
             }, [
               React.createElement('img', {
                 key: 'img',
-                src: project.image,
+                src: resolveAssetPath(project.image),
                 alt: project.title,
                 className: 'w-full h-full object-cover'
               }),
@@ -744,8 +757,8 @@ function Universe() {
           name: 'Phoenix',
           title: 'E-Commerce Platform',
           description: 'A modern e-commerce solution built with cutting-edge technologies. Features include real-time inventory management, seamless checkout experience, and responsive design that works beautifully across all devices.',
-          image: '/assets/constellation-phoenix.png',
-          constellationImage: '/assets/constellation-phoenix.png',
+          image: 'assets/constellation-phoenix.png',
+          constellationImage: 'assets/constellation-phoenix.png',
           link: '#',
           technologies: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
           position: { x: 200, y: 150 },
@@ -755,8 +768,8 @@ function Universe() {
           name: 'Unicorn',
           title: 'Creative Portfolio',
           description: 'An immersive portfolio experience showcasing creative works through interactive animations and stunning visuals. Built with performance in mind while maintaining artistic expression.',
-          image: '/assets/constellation-unicorn.png',
-          constellationImage: '/assets/constellation-unicorn.png',
+          image: 'assets/constellation-unicorn.png',
+          constellationImage: 'assets/constellation-unicorn.png',
           link: '#',
           technologies: ['Next.js', 'Framer Motion', 'Three.js', 'Tailwind'],
           position: { x: 700, y: 80 },
@@ -766,8 +779,8 @@ function Universe() {
           name: 'Wolf',
           title: 'Analytics Dashboard',
           description: 'A comprehensive analytics platform that transforms complex data into actionable insights. Features real-time data visualization, custom reporting, and intuitive user interface.',
-          image: '/assets/constellation-wolf.png',
-          constellationImage: '/assets/constellation-wolf.png',
+          image: 'assets/constellation-wolf.png',
+          constellationImage: 'assets/constellation-wolf.png',
           link: '#',
           technologies: ['Vue.js', 'D3.js', 'Python', 'AWS'],
           position: { x: 1200, y: 180 },
@@ -777,8 +790,8 @@ function Universe() {
           name: 'Dragon',
           title: 'Mobile Application',
           description: 'A cross-platform mobile application designed for seamless user experience. Incorporates native features while maintaining consistent design language across iOS and Android.',
-          image: '/assets/constellation-dragon.png',
-          constellationImage: '/assets/constellation-dragon.png',
+          image: 'assets/constellation-dragon.png',
+          constellationImage: 'assets/constellation-dragon.png',
           link: '#',
           technologies: ['React Native', 'Firebase', 'Redux', 'Expo'],
           position: { x: 1700, y: 100 },
@@ -788,8 +801,8 @@ function Universe() {
           name: 'Owl',
           title: 'AI Learning Platform',
           description: 'An intelligent learning management system powered by AI. Features personalized learning paths, adaptive assessments, and real-time progress tracking for optimal educational outcomes.',
-          image: '/assets/constellation-owl.png',
-          constellationImage: '/assets/constellation-owl.png',
+          image: 'assets/constellation-owl.png',
+          constellationImage: 'assets/constellation-owl.png',
           link: '#',
           technologies: ['Python', 'TensorFlow', 'React', 'FastAPI'],
           position: { x: 2200, y: 150 },
@@ -799,8 +812,8 @@ function Universe() {
           name: 'Bear',
           title: 'Fitness Tracker',
           description: 'A comprehensive fitness and wellness application that helps users track workouts, nutrition, and sleep patterns. Includes social features for community motivation and challenges.',
-          image: '/assets/constellation-bear.png',
-          constellationImage: '/assets/constellation-bear.png',
+          image: 'assets/constellation-bear.png',
+          constellationImage: 'assets/constellation-bear.png',
           link: '#',
           technologies: ['Swift', 'Kotlin', 'HealthKit', 'GraphQL'],
           position: { x: 2700, y: 200 },
@@ -810,8 +823,8 @@ function Universe() {
           name: 'Deer',
           title: 'Nature Photography',
           description: 'A stunning photography portfolio and marketplace for nature photographers. Features high-resolution image galleries, print ordering, and licensing management.',
-          image: '/assets/constellation-deer.png',
-          constellationImage: '/assets/constellation-deer.png',
+          image: 'assets/constellation-deer.png',
+          constellationImage: 'assets/constellation-deer.png',
           link: '#',
           technologies: ['Gatsby', 'Cloudinary', 'Stripe', 'Sanity'],
           position: { x: 3200, y: 120 },
@@ -821,8 +834,8 @@ function Universe() {
           name: 'Butterfly',
           title: 'Social Impact App',
           description: 'A platform connecting volunteers with local nonprofit organizations. Features event management, impact tracking, and community building tools for social good.',
-          image: '/assets/constellation-butterfly.png',
-          constellationImage: '/assets/constellation-butterfly.png',
+          image: 'assets/constellation-butterfly.png',
+          constellationImage: 'assets/constellation-butterfly.png',
           link: '#',
           technologies: ['React', 'Node.js', 'MongoDB', 'Socket.io'],
           position: { x: 3700, y: 160 },
@@ -1053,7 +1066,7 @@ function Universe() {
             key: project.id,
             id: project.id,
             name: project.name,
-            image: project.constellationImage,
+            image: resolveAssetPath(project.constellationImage),
             position: project.position,
             onClick: () => handleConstellationClick(project)
           })
