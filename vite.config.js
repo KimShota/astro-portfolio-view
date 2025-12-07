@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/astro-portfolio-view/',
   root: process.cwd(),
-  publicDir: 'src/assets',
+  publicDir: 'public',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
