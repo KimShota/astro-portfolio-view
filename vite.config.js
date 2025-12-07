@@ -1,14 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
   base: '/astro-portfolio-view/',
+  root: process.cwd(),
+  publicDir: 'src/assets',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
-      input: 'index.html',   // simple path, NOT absolute
-    }
-  }
+      input: resolve(process.cwd(), 'index.html'),
+    },
+  },
 });

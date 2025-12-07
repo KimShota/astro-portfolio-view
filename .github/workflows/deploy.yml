@@ -22,35 +22,58 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Force cleanup index.html directory
+        with:
+          clean: true
+      - name: Set working directory and verify structure
         run: |
-          # Immediately remove any index.html directory that might exist
+          pwd
+          echo "Current directory: $(pwd)"
+          echo "Listing root directory:"
+          ls -la
+          echo ""
+          echo "Checking for index.html:"
           if [ -d "index.html" ]; then
-            echo "Found index.html as directory, removing..."
+            echo "ERROR: index.html exists as a directory!"
+            echo "Removing directory..."
             rm -rf index.html
-            # Restore from Git
-            git checkout HEAD -- index.html || echo "Could not restore from Git"
+            echo "Restoring from Git..."
+            git checkout HEAD -- index.html || {
+              echo "Failed to restore from Git, checking Git status:"
+              git status
+              exit 1
+            }
           fi
-          # Verify it's a file
-          if [ -f "index.html" ]; then
-            echo "✓ index.html is a file"
-            ls -lh index.html
-          else
-            echo "✗ index.html is missing or not a file"
-            echo "Listing files in root:"
-            ls -la | head -20
-            echo "Checking for index.html variants:"
-            find . -maxdepth 1 -iname "*index*" -type f || true
+          if [ ! -f "index.html" ]; then
+            echo "ERROR: index.html is not a file!"
+            echo "Searching for index files:"
+            find . -maxdepth 2 -iname "*index*" -type f
+            find . -maxdepth 2 -iname "*index*" -type d
             exit 1
           fi
+          echo "✓ Verified: index.html is a file"
+          file index.html
+          ls -lh index.html
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - name: Clean workspace
+      - name: Clean build artifacts
         run: |
-          rm -rf node_modules dist
-      - run: npm ci
-      - run: npm run build
+          rm -rf node_modules dist .vite
+      - name: Install dependencies
+        run: npm ci
+      - name: Verify index.html before build
+        run: |
+          if [ ! -f "index.html" ]; then
+            echo "ERROR: index.html missing before build!"
+            exit 1
+          fi
+          if [ -d "index.html" ]; then
+            echo "ERROR: index.html is a directory before build!"
+            exit 1
+          fi
+          echo "✓ index.html verified as file before build"
+      - name: Build project
+        run: npm run build
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
