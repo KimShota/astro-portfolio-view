@@ -472,7 +472,7 @@ function Index() {
           }, React.createElement('h1', {
             className: 'font-display text-4xl md:text-6xl lg:text-7xl tracking-wider mb-4'
           }, [
-            React.createElement('span', { key: 'my', className: 'text-foreground' }, 'MY'),
+            React.createElement('span', { key: 'my', className: 'text-foreground' }, 'SHOTA\'S'),
             React.createElement('br', { key: 'br' }),
             React.createElement('span', { key: 'universe', className: 'text-gradient-gold' }, 'UNIVERSE')
           ])),
@@ -484,7 +484,7 @@ function Index() {
             transition: { duration: 0.8, delay: 0.3, ease: 'easeOut' }
           }, React.createElement('p', {
             className: 'text-muted-foreground text-lg md:text-xl leading-relaxed'
-          }, 'Welcome to my creative universe. Each constellation represents a project, a journey through design and development. Click and drag to explore the cosmos of my work, and discover the stories behind each creation.')),
+          }, 'Welcome to Shota\'s universe! Each constellation represents my personal or group projects, so explore them as you wish. Click and drag or swipe horizontally to explore my universe, and learn about each project and me as a pseron!')),
           React.createElement(motion.div, {
             key: 'button',
             initial: { opacity: 0, scale: 0.9 },
@@ -755,67 +755,67 @@ function Universe() {
         {
           id: 'phoenix',
           name: 'Phoenix',
-          title: 'E-Commerce Platform',
-          description: 'A modern e-commerce solution built with cutting-edge technologies. Features include real-time inventory management, seamless checkout experience, and responsive design that works beautifully across all devices.',
+          title: 'Campus-Rush',
+          description: '“Campus Rush” is a captivating  interactive comic that talks about NYUAD students’ real experiences of how to use a 10 minute break in between classes effectively. As a web designer, I designed the website using the cava as well as made the storyline so that not only NYUAD students but also all the students in the world can resonate with it.',
           image: 'assets/constellation-phoenix.png',
           constellationImage: 'assets/constellation-phoenix.png',
           link: '#',
-          technologies: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+          technologies: ['HTML', 'CSS', 'JavaScript', 'Canva'],
           position: { x: 200, y: 150 },
         },
         {
           id: 'unicorn',
           name: 'Unicorn',
-          title: 'Creative Portfolio',
-          description: 'An immersive portfolio experience showcasing creative works through interactive animations and stunning visuals. Built with performance in mind while maintaining artistic expression.',
+          title: 'Shota\'s Productive Daily Routine',
+          description: 'This is a website about my productive daily routine, teaching my audience how to spend a day productively. I used html, CSS, and Javascript to create this website, and used canva to create the wireframe.',
           image: 'assets/constellation-unicorn.png',
           constellationImage: 'assets/constellation-unicorn.png',
           link: '#',
-          technologies: ['Next.js', 'Framer Motion', 'Three.js', 'Tailwind'],
+          technologies: ['HTML', 'CSS', 'JavaScript'],
           position: { x: 700, y: 80 },
         },
         {
           id: 'wolf',
           name: 'Wolf',
-          title: 'Analytics Dashboard',
-          description: 'A comprehensive analytics platform that transforms complex data into actionable insights. Features real-time data visualization, custom reporting, and intuitive user interface.',
+          title: 'Laundry Adventure',
+          description: '“Laundry Adventure” is an interactive short film that highlights real experiences students face in the laundry room, such as people removing clothes before they’re finished or even stealing items. I played the main character, whose favorite socks get stolen by someone. As the executive web developer, I created an interactive website where users can explore different pathways to learn how they should respond in situations where their clothes are taken.',
           image: 'assets/constellation-wolf.png',
           constellationImage: 'assets/constellation-wolf.png',
           link: '#',
-          technologies: ['Vue.js', 'D3.js', 'Python', 'AWS'],
+          technologies: ['HTML', 'CSS', 'JavaScript'],
           position: { x: 1200, y: 180 },
         },
         {
           id: 'dragon',
           name: 'Dragon',
-          title: 'Mobile Application',
-          description: 'A cross-platform mobile application designed for seamless user experience. Incorporates native features while maintaining consistent design language across iOS and Android.',
+          title: 'Sound Detective',
+          description: '“Sound Detective” is an interactive website where users restore music to a silent world by identifying instruments in distorted audio tracks after a global phenomenon called the “Great Sound Distortion” has erased all sound. As an executive web developer, I created an interactive, creepy website using HTML, CSS, and JS to effectively talk about the story. As a sound recorder, I used multiple professional sound equipment to record various instruments.',
           image: 'assets/constellation-dragon.png',
           constellationImage: 'assets/constellation-dragon.png',
           link: '#',
-          technologies: ['React Native', 'Firebase', 'Redux', 'Expo'],
+          technologies: ['HTML', 'CSS', 'JavaScript', 'Sound Equipment'],
           position: { x: 1700, y: 100 },
         },
         {
           id: 'owl',
           name: 'Owl',
-          title: 'AI Learning Platform',
-          description: 'An intelligent learning management system powered by AI. Features personalized learning paths, adaptive assessments, and real-time progress tracking for optimal educational outcomes.',
+          title: 'Brainlot',
+          description: 'BrainLot is a mobile learning app that infinitely generates MCQs from images or text input using AI and delivers them in a TikTok-style, infinite scrolling experience. I built the full end-to-end system, integrating local LLMs (llama.rn) and cloud models (Groq), implementing secure subscription verification with Supabase Edge Functions and RevenueCat, and designing a scalable backend with RLS, RPC functions, rate-limits, and upload controls. I also developed the React Native frontend, created the AI-powered MCQ generation pipeline with OCR and text chunking, and implemented secure authentication, purchase validation, and data-access enforcement.',
           image: 'assets/constellation-owl.png',
           constellationImage: 'assets/constellation-owl.png',
           link: '#',
-          technologies: ['Python', 'TensorFlow', 'React', 'FastAPI'],
+          technologies: ['React Native', 'TypeScript', 'Supabase (Auth, Database, RLS)', 'Backend with Deno Edge Functions', 'PostgreSQL', 'RevenueCat', 'AI integration (Groq, Local LLMs)', 'OCR pipelines (Google ML Kit)'],
           position: { x: 2200, y: 150 },
         },
         {
           id: 'bear',
           name: 'Bear',
-          title: 'Fitness Tracker',
-          description: 'A comprehensive fitness and wellness application that helps users track workouts, nutrition, and sleep patterns. Includes social features for community motivation and challenges.',
+          title: 'ZEN EYE Pro',
+          description: 'ZEN EYE Pro is a VR-based eye-tracking system that measures mental fatigue in just one minute by analyzing gaze patterns and blink behaviors in realistic environments, demonstrating strong ecological validity and objective accuracy. I built the system as the lead VR engineer and data scientist—programming the full Unity eye-tracking pipeline, creating real-time analytics tools, and developing the machine-learning models that processed gaze and blink data from over 2,000 participants. This work led to a validated fatigue assessment formula, 30% accuracy improvement, $163K in funding, and recognition as a Real Madrid Next Accelerator finalist, Startup World Cup top-10 finalist, and coverage on NIKKEI TV.',
           image: 'assets/constellation-bear.png',
           constellationImage: 'assets/constellation-bear.png',
           link: '#',
-          technologies: ['Swift', 'Kotlin', 'HealthKit', 'GraphQL'],
+          technologies: ['Python', 'C#', 'C++', 'Unity', 'Unreal Engine', 'Blender', 'PICO enterprise (VR)'],
           position: { x: 2700, y: 200 },
         },
         {
@@ -1026,9 +1026,9 @@ function Universe() {
             React.createElement('div', { key: 'dot', className: 'w-4 h-4 rounded-full bg-foreground/50' }),
             React.createElement(IconComponent, { key: 'right', name: 'ChevronRight', className: 'w-6 h-6' })
           ]),
-          React.createElement('p', { key: 'p1', className: 'text-lg font-body' }, 'Click and drag to explore the universe.'),
-          React.createElement('p', { key: 'p2', className: 'text-muted-foreground mt-2' }, 'Each constellation holds a different project.'),
-          React.createElement('p', { key: 'p3', className: 'text-muted-foreground' }, 'The universe loops infinitely — keep exploring!')
+          React.createElement('p', { key: 'p1', className: 'text-lg font-body' }, 'Click and drag or Swipe horizontally to explore my universe.'),
+          React.createElement('p', { key: 'p2', className: 'text-muted-foreground mt-2' }, 'Each constellation represents my project.'),
+          React.createElement('p', { key: 'p3', className: 'text-muted-foreground' }, 'My universe loops infinitely, so keep exploring!')
         ])),
         React.createElement(motion.button, {
           key: 'scroll-left',
