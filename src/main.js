@@ -1112,7 +1112,7 @@ function NotFound() {
 
 // App Component
 function App() {
-      return React.createElement(BrowserRouter, {}, React.createElement(Routes, {}, [
+      return React.createElement(BrowserRouter, { basename: '/astro-portfolio-view' }, React.createElement(Routes, {}, [
         React.createElement(Route, { key: '/', path: '/', element: React.createElement(Index) }),
         React.createElement(Route, { key: '/universe', path: '/universe', element: React.createElement(Universe) }),
         React.createElement(Route, { key: '/who', path: '/who', element: React.createElement(Who) }),
