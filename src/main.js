@@ -1,28 +1,24 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, Fragment, forwardRef, createContext, useContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-
-// Framer Motion is imported at the top
+import { motion, AnimatePresence } from 'framer-motion'; // import framer-motion library for animation 
 
 // Utility function (cn equivalent)
 function cn(...inputs) {
       return inputs.filter(Boolean).join(' ');
 }
 
-// Helper function to resolve asset paths relative to base for GitHub Pages
-// This ensures relative paths work correctly with React Router sub-routes
+// function to resolve asset paths 
 function resolveAssetPath(path) {
-  // If path is already absolute (starts with /), return as-is (Vite will handle base)
+  // if the path is already absolute, return it as it is 
   if (path.startsWith('/')) {
     return path;
   }
-  // For relative paths, ensure they resolve from the base
-  // In GitHub Pages with base /astro-portfolio-view/, we need to prepend it
+  // if it is a relative path, prepend the base path
   return `/astro-portfolio-view/${path}`;
 }
 
-// Audio Context for managing background music and sound effects
+// create a context to manage audio state 
 const AudioContext = createContext(null);
 
 // Audio Provider Component
@@ -134,7 +130,9 @@ function StarField({ starCount = 400, className = '', parallaxOffset = 0 }) {
   const containerRef = useRef(null);
       const [shootingStars, setShootingStars] = useState([]);
 
+  // use useMemo() to store computed positions of stars 
   const starLayers = useMemo(() => {
+    // group stars into 3 different layers 
     const layers = [
           { count: Math.floor(starCount * 0.5), speed: 0.1, sizeRange: [0.5, 1.5] },
           { count: Math.floor(starCount * 0.3), speed: 0.3, sizeRange: [1, 2.5] },
@@ -143,6 +141,7 @@ function StarField({ starCount = 400, className = '', parallaxOffset = 0 }) {
 
         return layers.map((layer) => {
       const stars = [];
+          // compute different positions, size and twinkle variables of each star
           for (let i = 0; i < layer.count; i++) {
             stars.push({
               x: Math.random() * 100,
@@ -157,6 +156,7 @@ function StarField({ starCount = 400, className = '', parallaxOffset = 0 }) {
         });
       }, [starCount]);
 
+      // spawn shooting stars at random positions 
       useEffect(() => {
     const spawnShootingStar = () => {
       const newStar = {
@@ -231,10 +231,10 @@ function StarField({ starCount = 400, className = '', parallaxOffset = 0 }) {
               transform: `translateX(${-parallaxOffset * layer.speed}px)`,
               willChange: 'transform',
             }
-          }, layer.stars.map((star, index) =>
+          }, layer.stars.map((star, index) => // create a tiny glowing stars 
             React.createElement('div', {
               key: `star-${layerIndex}-${index}`,
-              className: 'absolute rounded-full animate-twinkle',
+              className: 'absolute rounded-full animate-twinkle', // make it circle
               style: {
                 left: `${star.x}%`,
                 top: `${star.y}%`,
@@ -272,10 +272,10 @@ function StarField({ starCount = 400, className = '', parallaxOffset = 0 }) {
                 background: 'hsl(200 90% 90%)',
                 boxShadow: '0 0 10px hsl(200 90% 80%), 0 0 20px hsl(200 90% 70%)',
               }
-            }),
+            }), // creates a long tail of the shooting stars 
             React.createElement('div', {
               key: 'star-tail',
-              className: 'absolute top-0.5 -left-24 w-24 h-1 rounded-full',
+              className: 'absolute top-0.5 -left-24 w-24 h-1 rounded-full', // h = 1 to make it super thin 
               style: {
                 background: 'linear-gradient(90deg, transparent, hsl(200 80% 80% / 0.8))',
               }
@@ -606,18 +606,6 @@ function Index() {
               whileHover: { x: 0 },
               transition: { duration: 0.3 }
             })
-          ])),
-          React.createElement(motion.div, {
-            key: 'hint',
-            className: 'absolute bottom-10 left-1/2 -translate-x-1/2',
-            animate: { y: [0, -10, 0] },
-            transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
-          }, React.createElement('div', {
-            className: 'flex items-center gap-2 text-muted-foreground/50 text-sm'
-          }, [
-            React.createElement('span', { key: 'line1', className: 'w-4 h-[1px] bg-muted-foreground/50' }),
-            React.createElement('span', { key: 'text' }, 'Click to begin'),
-            React.createElement('span', { key: 'line2', className: 'w-4 h-[1px] bg-muted-foreground/50' })
           ]))
         ])
       ]);
@@ -679,7 +667,7 @@ function Who() {
         }, [
           React.createElement('section', {
             key: 'hero',
-            className: 'min-h-screen flex flex-col lg:flex-row items-center justify-center px-6 py-20 lg:py-10 gap-10 lg:gap-20'
+            className: 'min-h-screen flex flex-col lg:flex-row items-center justify-center px-6 py-20 lg:py-10 gap-10 lg:gap-20 max-w-7xl mx-auto'
           }, [
             React.createElement(motion.div, {
               key: 'photo',
@@ -701,7 +689,7 @@ function Who() {
             ])),
             React.createElement(motion.div, {
               key: 'intro',
-              className: 'max-w-xl text-center lg:text-left',
+              className: 'max-w-2xl text-center lg:text-left',
               initial: { opacity: 0, x: 50 },
               animate: { opacity: 1, x: 0 },
               transition: { duration: 0.6, delay: 0.2 }
@@ -880,7 +868,7 @@ function Universe() {
           constellationImage: 'assets/constellation-phoenix.png',
           link: 'https://darveloff.github.io/comics/',
           technologies: ['HTML', 'CSS', 'JavaScript', 'Canva'],
-          position: { x: 200, y: 150 },
+          position: { x: 200, y: 300 },
         },
         {
           id: 'unicorn',
@@ -891,7 +879,7 @@ function Universe() {
           constellationImage: 'assets/constellation-unicorn.png',
           link: 'https://kimshota.github.io/Communications-Lab-Assignment1/',
           technologies: ['HTML', 'CSS', 'JavaScript'],
-          position: { x: 700, y: 80 },
+          position: { x: 700, y: 230 },
         },
         {
           id: 'wolf',
@@ -902,7 +890,7 @@ function Universe() {
           constellationImage: 'assets/constellation-wolf.png',
           link: 'https://kimshota.github.io/laundry-story/',
           technologies: ['HTML', 'CSS', 'JavaScript'],
-          position: { x: 1200, y: 180 },
+          position: { x: 1200, y: 300 },
         },
         {
           id: 'dragon',
@@ -913,7 +901,7 @@ function Universe() {
           constellationImage: 'assets/constellation-dragon.png',
           link: 'https://kimshota.github.io/sound-detective/',
           technologies: ['HTML', 'CSS', 'JavaScript', 'Sound Equipment'],
-          position: { x: 1700, y: 100 },
+          position: { x: 1700, y: 230 },
         },
         {
           id: 'owl',
@@ -924,7 +912,7 @@ function Universe() {
           constellationImage: 'assets/constellation-owl.png',
           link: 'https://github.com/KimShota/Brainlot',
           technologies: ['React Native', 'TypeScript', 'Supabase (Auth, Database, RLS)', 'Backend with Deno Edge Functions', 'PostgreSQL', 'RevenueCat', 'AI integration (Groq, Local LLMs)', 'OCR pipelines (Google ML Kit)'],
-          position: { x: 2200, y: 150 },
+          position: { x: 2200, y: 300 },
         },
         {
           id: 'bear',
@@ -935,7 +923,7 @@ function Universe() {
           constellationImage: 'assets/constellation-bear.png',
           link: 'https://github.com/KimShota/ZEN-EYE',
           technologies: ['Python', 'C#', 'C++', 'Unity', 'Unreal Engine', 'Blender', 'PICO enterprise (VR)'],
-          position: { x: 2700, y: 200 },
+          position: { x: 2700, y: 230 },
         },
         {
           id: 'deer',
@@ -946,7 +934,7 @@ function Universe() {
           constellationImage: 'assets/constellation-deer.png',
           link: 'https://www.instagram.com/shotacademic/',
           technologies: ['CapCut', 'Resolve Davinci', 'Communication Skills', 'Problem-Solving Skills', 'Data Analysis'],
-          position: { x: 3200, y: 120 },
+          position: { x: 3200, y: 300 },
         },
         {
           id: 'butterfly',
@@ -957,7 +945,7 @@ function Universe() {
           constellationImage: 'assets/constellation-butterfly.png',
           link: 'https://github.com/KimShota/Airflow-ModelHouse',
           technologies: ['C#', 'Python', 'Unity', 'Blender'],
-          position: { x: 3700, y: 160 },
+          position: { x: 3700, y: 230 },
         },
       ];
 
